@@ -39,7 +39,6 @@ public class MainActivity extends AppCompatActivity {
                 logoutConfirmation();
             }
         });
-
     }
 
     private void logoutConfirmation() {
