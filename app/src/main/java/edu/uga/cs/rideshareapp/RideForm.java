@@ -76,7 +76,6 @@ public class RideForm extends AppCompatActivity {
                 submitRideForm();
             }
         });
-
     }
 
     private void showDatePicker() {
@@ -110,7 +109,6 @@ public class RideForm extends AppCompatActivity {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                         String selectedTime;
-
                         int hour = hourOfDay;
                         String amPm;
 
@@ -163,6 +161,7 @@ public class RideForm extends AppCompatActivity {
             Toast.makeText(this, "Please select a time.", Toast.LENGTH_SHORT).show();
             return;
         }
+
         // making sure the date and time selected is in the future
         String dateTimeStr = date + " " + time;
         SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy hh:mm a", Locale.getDefault());
@@ -183,7 +182,6 @@ public class RideForm extends AppCompatActivity {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         String uid = currentUser.getUid();
         String email = currentUser.getEmail();
-
         String rideType = (rideTypeId == R.id.rideOffer) ? "offer" : "request";
 
         // prepare ride information
