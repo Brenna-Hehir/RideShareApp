@@ -17,7 +17,6 @@ import com.google.firebase.auth.FirebaseAuth;
 public class MainActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
-    private Button logoutButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,12 +30,21 @@ public class MainActivity extends AppCompatActivity {
         });
 
         mAuth = FirebaseAuth.getInstance();
-        logoutButton = findViewById(R.id.logoutButton);
+        Button logoutButton = findViewById(R.id.logoutButton);
+        Button rideFormButton = findViewById(R.id.rideFormButton);
 
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 logoutConfirmation();
+            }
+        });
+
+        rideFormButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, RideForm.class);
+                startActivity(intent);
             }
         });
     }
