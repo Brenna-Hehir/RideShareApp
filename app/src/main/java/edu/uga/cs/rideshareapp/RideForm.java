@@ -18,6 +18,11 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -131,7 +136,6 @@ public class RideForm extends AppCompatActivity {
     }
 
     private void submitRideForm() {
-        // TODO: Implement this class - add the post to the database etc
         String startingPoint = startingPointInput.getText().toString().trim();
         String destination = destinationInput.getText().toString().trim();
         String date = dateInput.getText().toString().trim();
@@ -175,8 +179,33 @@ public class RideForm extends AppCompatActivity {
             return;
         }
 
-        Toast.makeText(this, "Form is valid! Ready to post.", Toast.LENGTH_SHORT).show();
+        // setup Firebase push
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        String uid = currentUser.getUid();
+        String email = currentUser.getEmail();
 
+        String rideType = (rideTypeId == R.id.rideOffer) ? "offer" : "request";
+
+        // prepare ride information
+        Ride ride = new Ride(
+                rideType,
+                rideType.equals("offer") ? uid : null,      // driverId
+                rideType.equals("request") ? uid : null,    // riderId
+                startingPoint,
+                destination,
+                date + " " + time,
+                false,                              // accepted
+                false,                                       // driverConfirmed
+                false,                                       // riderConfirmed
+                rideType.equals("offer") ? email : null,     // driverEmail
+                rideType.equals("request") ? email : null    // riderEmail
+        );
+
+        // Push to Firebase
+        DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("rides");
+        databaseRef.push().setValue(ride);
+
+        Toast.makeText(this, "Ride posted successfully!", Toast.LENGTH_SHORT).show();
+        finish();
     }
-
 }
