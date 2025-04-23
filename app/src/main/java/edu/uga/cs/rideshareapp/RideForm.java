@@ -18,7 +18,11 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 public class RideForm extends AppCompatActivity {
 
@@ -128,7 +132,51 @@ public class RideForm extends AppCompatActivity {
 
     private void submitRideForm() {
         // TODO: Implement this class - add the post to the database etc
-        Toast.makeText(RideForm.this, "Post Ride button clicked!", Toast.LENGTH_SHORT).show();
+        String startingPoint = startingPointInput.getText().toString().trim();
+        String destination = destinationInput.getText().toString().trim();
+        String date = dateInput.getText().toString().trim();
+        String time = timeInput.getText().toString().trim();
+        int rideTypeId = rideTypeGroup.getCheckedRadioButtonId();
+
+        // making sure all fields are filled out
+        if (rideTypeId == -1) {
+            Toast.makeText(this, "Please select Ride Offer or Ride Request.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (startingPoint.isEmpty()) {
+            Toast.makeText(this, "Please enter a starting point.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (destination.isEmpty()) {
+            Toast.makeText(this, "Please enter a destination.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (date.isEmpty()) {
+            Toast.makeText(this, "Please select a date.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (time.isEmpty()) {
+            Toast.makeText(this, "Please select a time.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        // making sure the date and time selected is in the future
+        String dateTimeStr = date + " " + time;
+        SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy hh:mm a", Locale.getDefault());
+        try {
+            Date selectedDateTime = sdf.parse(dateTimeStr);
+            Date currentDateTime = new Date();
+
+            if (selectedDateTime != null && selectedDateTime.before(currentDateTime)) {
+                Toast.makeText(this, "Please select a date and time in the future.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        } catch (ParseException e) {
+            Toast.makeText(this, "Invalid date or time format.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Toast.makeText(this, "Form is valid! Ready to post.", Toast.LENGTH_SHORT).show();
+
     }
 
 }
