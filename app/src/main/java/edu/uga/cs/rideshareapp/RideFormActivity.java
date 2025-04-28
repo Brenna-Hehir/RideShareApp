@@ -29,7 +29,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-public class RideForm extends AppCompatActivity {
+public class RideFormActivity extends AppCompatActivity {
 
     private EditText startingPointInput, destinationInput, dateInput, timeInput;
     private RadioGroup rideTypeGroup;
@@ -85,7 +85,7 @@ public class RideForm extends AppCompatActivity {
         int day = calendar.get(Calendar.DAY_OF_MONTH);
 
         DatePickerDialog datePickerDialog = new DatePickerDialog (
-                RideForm.this,
+                RideFormActivity.this,
                 new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
@@ -104,7 +104,7 @@ public class RideForm extends AppCompatActivity {
         int minute = calendar.get(Calendar.MINUTE);
 
         TimePickerDialog timePickerDialog = new TimePickerDialog(
-                RideForm.this,
+                RideFormActivity.this,
                 new TimePickerDialog.OnTimeSetListener() {
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {

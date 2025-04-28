@@ -15,10 +15,13 @@
         android:theme="@style/Theme.RideShareApp"
         tools:targetApi="31">
         <activity
-            android:name=".Posts"
+            android:name=".OthersPostsActivity"
             android:exported="false" />
         <activity
-            android:name=".RideForm"
+            android:name=".MyPostsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".RideFormActivity"
             android:exported="false" />
         <activity
             android:name=".LoginActivity"

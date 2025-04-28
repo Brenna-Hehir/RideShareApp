@@ -32,6 +32,8 @@ public class MainActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         Button logoutButton = findViewById(R.id.logoutButton);
         Button rideFormButton = findViewById(R.id.rideFormButton);
+        Button myPostsButton = findViewById(R.id.myPosts);
+        Button othersPostsButton = findViewById(R.id.othersPosts);
 
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -43,7 +45,23 @@ public class MainActivity extends AppCompatActivity {
         rideFormButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, RideForm.class);
+                Intent intent = new Intent(MainActivity.this, RideFormActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        myPostsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, MyPostsActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        othersPostsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, OthersPostsActivity.class);
                 startActivity(intent);
             }
         });

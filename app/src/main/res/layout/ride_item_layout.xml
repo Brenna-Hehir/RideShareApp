@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="12dp">
+
+    <TextView
+        android:id="@+id/fromTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="From: "
+        android:textSize="18sp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/actionButton"
+        app:layout_constraintBottom_toTopOf="@+id/toTextView"
+        android:layout_marginEnd="8dp" />
+
+    <TextView
+        android:id="@+id/toTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="To: "
+        android:textSize="18sp"
+        app:layout_constraintTop_toBottomOf="@+id/fromTextView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/actionButton"
+        app:layout_constraintBottom_toTopOf="@+id/dateTimeTextView"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="8dp" />
+
+    <TextView
+        android:id="@+id/dateTimeTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Date/Time"
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@+id/toTextView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/actionButton"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="8dp" />
+
+    <Button
+        android:id="@+id/actionButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Edit"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
