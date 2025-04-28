@@ -43,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
         rideFormButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(MainActivity.this, RideForm.class);
+                Intent intent = new Intent(MainActivity.this, RideFormActivity.class);
                 startActivity(intent);
             }
         });
