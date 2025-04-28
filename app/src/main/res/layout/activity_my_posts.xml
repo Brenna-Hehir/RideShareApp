@@ -5,13 +5,13 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".OthersPostsActivity">
+    tools:context=".MyPostsActivity">
 
     <TextView
-        android:id="@+id/othersPostsHeader"
+        android:id="@+id/myPostsHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Other's Posts"
+        android:text="My Posts"
         android:textAlignment="center"
         android:textSize="34sp"
         android:textStyle="bold"
@@ -22,21 +22,21 @@
         app:layout_constraintVertical_bias="0.1" />
 
     <Button
-        android:id="@+id/othersOffersButton"
+        android:id="@+id/myOffersButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="16dp"
         android:text="Offers"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/othersRequestsButton"
+        app:layout_constraintEnd_toStartOf="@+id/myRequestsButton"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.25" />
 
     <Button
-        android:id="@+id/othersRequestsButton"
+        android:id="@+id/myRequestsButton"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
@@ -44,14 +44,14 @@
         android:text="Requests"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/othersOffersButton"
-        app:layout_constraintTop_toTopOf="@+id/othersOffersButton" />
+        app:layout_constraintStart_toEndOf="@+id/myOffersButton"
+        app:layout_constraintTop_toTopOf="@+id/myOffersButton" />
 
     <TextView
         android:id="@+id/currentListHeader"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Other's Unaccepted Offers"
+        android:text="My Unaccepted Offers"
         android:textAlignment="center"
         android:textSize="24sp"
         android:textStyle="bold"
@@ -62,7 +62,7 @@
         app:layout_constraintVertical_bias="0.4" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/othersPostsRecyclerView"
+        android:id="@+id/myPostsRecyclerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintTop_toBottomOf="@+id/currentListHeader"
