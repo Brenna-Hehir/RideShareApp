@@ -81,7 +81,6 @@ public class RidePostAdapter extends RecyclerView.Adapter< RidePostAdapter.RideV
                             .addOnFailureListener(e -> {
                                 Toast.makeText(holder.itemView.getContext(), "Failed to accept ride.", Toast.LENGTH_SHORT).show();
                             });
-
                 }
             });
         }
