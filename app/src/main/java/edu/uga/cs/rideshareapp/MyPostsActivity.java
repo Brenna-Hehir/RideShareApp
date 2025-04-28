@@ -110,8 +110,5 @@ public class MyPostsActivity extends AppCompatActivity {
 
             }
         });
-
     }
-
-
 }
