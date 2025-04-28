@@ -15,6 +15,9 @@
         android:theme="@style/Theme.RideShareApp"
         tools:targetApi="31">
         <activity
+            android:name=".Posts"
+            android:exported="false" />
+        <activity
             android:name=".RideForm"
             android:exported="false" />
         <activity
