@@ -1,5 +1,6 @@
 package edu.uga.cs.rideshareapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -30,6 +31,7 @@ public class OthersPostsActivity extends AppCompatActivity {
     private RecyclerView othersPostsRecyclerView;
     private RidePostAdapter adapter;
     private List<Ride> rideList;
+    private List<String> rideKeys;
 
     private TextView currentListHeader;
 
@@ -53,10 +55,12 @@ public class OthersPostsActivity extends AppCompatActivity {
         Button othersOffersButton = findViewById(R.id.othersOffersButton);
         Button othersRequestsButton = findViewById(R.id.othersRequestsButton);
         currentListHeader = findViewById(R.id.currentListHeader);
+        Button homeButton = findViewById(R.id.homeButton);
 
         othersPostsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         rideList = new ArrayList<>();
-        adapter = new RidePostAdapter(rideList, "OTHERS_POSTS"); // mode
+        rideKeys = new ArrayList<>();
+        adapter = new RidePostAdapter(rideList, rideKeys,"OTHERS_POSTS"); // mode
         othersPostsRecyclerView.setAdapter(adapter);
 
         databaseRef = FirebaseDatabase.getInstance().getReference("rides");
@@ -81,6 +85,14 @@ public class OthersPostsActivity extends AppCompatActivity {
                 loadOthersPosts();
             }
         });
+
+        homeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(OthersPostsActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     private void loadOthersPosts() {
@@ -97,11 +109,13 @@ public class OthersPostsActivity extends AppCompatActivity {
                         if (currentMode.equals("offer")) {
                             if (ride.rideType != null && ride.rideType.equals("offer") && ride.driverId != null && !ride.driverId.equals(currentUser.getUid())) {
                                 rideList.add(ride);
+                                rideKeys.add(postSnapshot.getKey());
                             }
                         }
                         if (currentMode.equals("request")) {
                             if (ride.rideType != null && ride.rideType.equals("request") && ride.riderId != null && !ride.riderId.equals(currentUser.getUid())) {
                                 rideList.add(ride);
+                                rideKeys.add(postSnapshot.getKey());
                             }
                         }
                     }

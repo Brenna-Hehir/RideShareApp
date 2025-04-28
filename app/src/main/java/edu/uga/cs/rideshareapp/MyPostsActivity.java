@@ -1,5 +1,6 @@
 package edu.uga.cs.rideshareapp;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -30,8 +31,8 @@ public class MyPostsActivity extends AppCompatActivity {
     private RecyclerView myPostsRecyclerView;
     private RidePostAdapter adapter;
     private List<Ride> rideList;
+    private List<String> rideKeys;
 
-    private Button myOffersButton, myRequestButton;
     private TextView currentListHeader;
 
     private DatabaseReference databaseRef;
@@ -51,13 +52,15 @@ public class MyPostsActivity extends AppCompatActivity {
         });
 
         myPostsRecyclerView = findViewById(R.id.myPostsRecyclerView);
-        myOffersButton = findViewById(R.id.myOffersButton);
-        myRequestButton = findViewById(R.id.myRequestsButton);
+        Button myOffersButton = findViewById(R.id.myOffersButton);
+        Button myRequestButton = findViewById(R.id.myRequestsButton);
         currentListHeader = findViewById(R.id.currentListHeader);
+        Button homeButton = findViewById(R.id.homeButton);
 
         myPostsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         rideList = new ArrayList<>();
-        adapter = new RidePostAdapter(rideList, "MY_POSTS"); // mode
+        rideKeys = new ArrayList<>();
+        adapter = new RidePostAdapter(rideList, rideKeys, "MY_POSTS"); // mode
         myPostsRecyclerView.setAdapter(adapter);
 
         databaseRef = FirebaseDatabase.getInstance().getReference("rides");
@@ -82,6 +85,14 @@ public class MyPostsActivity extends AppCompatActivity {
                 loadMyPosts();
             }
         });
+
+        homeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MyPostsActivity.this, MainActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     private void loadMyPosts() {
@@ -97,10 +108,13 @@ public class MyPostsActivity extends AppCompatActivity {
                     if (ride != null) {
                         if (currentMode.equals("offer") && ride.driverId != null && ride.driverId.equals(currentUser.getUid())) {
                             rideList.add(ride);
+                            rideKeys.add(postSnapshot.getKey());
                         }
                         if (currentMode.equals("request") && ride.riderId != null && ride.riderId.equals(currentUser.getUid())) {
                             rideList.add(ride);
-                        }                    }
+                            rideKeys.add(postSnapshot.getKey());
+                        }
+                    }
                 }
                 adapter.notifyDataSetChanged();
             }
