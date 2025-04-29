@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="12dp">
+
+    <!-- DATE/TIME at the very top -->
+    <TextView
+        android:id="@+id/roleTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Driver"
+        android:textColor="#0000FF"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/dateTimeTextView" />
+
+    <TextView
+        android:id="@+id/dateTimeTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Date/Time"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#000000"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginBottom="8dp"/>
+
+    <!-- ROLE: Driver or Rider -->
+
+    <!-- FROM location -->
+    <TextView
+        android:id="@+id/fromTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="From: "
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@+id/roleTextView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/confirmButton"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="8dp"/>
+
+    <!-- TO location -->
+    <TextView
+        android:id="@+id/toTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="To: "
+        android:textSize="16sp"
+        app:layout_constraintTop_toBottomOf="@+id/fromTextView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/confirmButton"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"/>
+
+    <!-- CONFIRM button -->
+    <Button
+        android:id="@+id/confirmButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Confirm Ride\n Completed"
+        app:layout_constraintBottom_toTopOf="@+id/pointsTextView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- POINTS under the confirm button -->
+    <TextView
+        android:id="@+id/pointsTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="+50 points"
+        android:textColor="#008000"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/toTextView"
+        app:layout_constraintTop_toBottomOf="@+id/confirmButton" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
