@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -37,6 +38,11 @@ public class MainActivity extends AppCompatActivity {
     private DatabaseReference databaseRef;
     private FirebaseUser currentUser;
 
+    private TextView pointsTextView;
+
+    private DatabaseReference userRef;
+    private ValueEventListener pointsListener;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,6 +72,14 @@ public class MainActivity extends AppCompatActivity {
 
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         databaseRef = FirebaseDatabase.getInstance().getReference("rides");
+
+        pointsTextView = findViewById(R.id.pointsTextView);
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        if (currentUser != null) {
+            userRef = FirebaseDatabase.getInstance().getReference("users").child(currentUser.getUid()).child("points");
+            setupPointsListener();
+        }
 
         loadActiveRides();
 
@@ -139,6 +153,26 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    private void setupPointsListener() {
+        pointsListener = userRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    Long points = snapshot.getValue(Long.class);
+                    pointsTextView.setText("Points: " + (points != null ? points : 0));
+                } else {
+                    pointsTextView.setText("Points: 0");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                pointsTextView.setText("Points: Error");
+            }
+        });
+    }
+
+
     private void logoutConfirmation() {
         new AlertDialog.Builder(this)
                 .setTitle("Confirm Logout")
@@ -172,4 +206,13 @@ public class MainActivity extends AppCompatActivity {
             finish();
         }
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (userRef != null && pointsListener != null) {
+            userRef.removeEventListener(pointsListener);
+        }
+    }
+
 }
