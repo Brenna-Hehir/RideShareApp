@@ -121,6 +121,7 @@ public class MainActivity extends AppCompatActivity {
                                         (ride.riderId != null && ride.riderId.equals(currentUser.getUid()))) {
 
                                     if (!(ride.driverConfirmed && ride.riderConfirmed)) {
+                                        ride.setKey(postSnapshot.getKey());
                                         activeRideList.add(ride);
                                         activeRideKeys.add(postSnapshot.getKey());
                                     }

@@ -75,8 +75,11 @@ public class ActiveRideAdapter extends RecyclerView.Adapter<ActiveRideAdapter.Ri
             holder.confirmButton.setEnabled(true);
 
             holder.confirmButton.setOnClickListener(v -> {
+                int adapterPosition = holder.getAdapterPosition();
+                String rideKey = rideKeys.get(adapterPosition);
+
                 DatabaseReference rideRef = FirebaseDatabase.getInstance().getReference("rides")
-                        .child(rideKeys.get(holder.getAdapterPosition()));
+                        .child(rideKey);
 
                 if (isDriver) {
                     ride.driverConfirmed = true;
@@ -91,7 +94,7 @@ public class ActiveRideAdapter extends RecyclerView.Adapter<ActiveRideAdapter.Ri
 
                             // If both users confirmed, finalize the ride
                             if (ride.driverConfirmed && ride.riderConfirmed) {
-                                finalizeCompletedRide(ride, holder.getAdapterPosition());
+                                finalizeCompletedRide(ride, adapterPosition);
                             }
                         });
             });
@@ -103,7 +106,7 @@ public class ActiveRideAdapter extends RecyclerView.Adapter<ActiveRideAdapter.Ri
         return rideList.size();
     }
 
-    private void finalizeCompletedRide(Ride ride, int position) {
+    private void finalizeCompletedRide(Ride ride, int rideKey) {
         int ridePoints = 50;
 
         // Update Points
@@ -120,7 +123,7 @@ public class ActiveRideAdapter extends RecyclerView.Adapter<ActiveRideAdapter.Ri
 
         // Remove from Active Rides
         DatabaseReference rideRef = FirebaseDatabase.getInstance().getReference("rides")
-                .child(rideKeys.get(position));
+                .child(String.valueOf(rideKey));
         rideRef.removeValue();
 
     }
