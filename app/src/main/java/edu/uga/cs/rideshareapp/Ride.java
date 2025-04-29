@@ -2,6 +2,7 @@ package edu.uga.cs.rideshareapp;
 
 public class Ride {
 
+    private String key;
     public String rideType;  // Offer or Request
     public String driverId;  // Initially null for Requests
     public String riderId;   // Initially null for Offers
@@ -31,4 +32,13 @@ public class Ride {
         this.driverEmail = driverEmail;
         this.riderEmail = riderEmail;
     }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
 }

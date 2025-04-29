@@ -4,19 +4,38 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
+    private RecyclerView activeRidesRecyclerView;
+    private ActiveRideAdapter activeRideAdapter;
+    private List<Ride> activeRideList;
+    private List<String> activeRideKeys;
+    private DatabaseReference databaseRef;
+    private FirebaseUser currentUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +53,22 @@ public class MainActivity extends AppCompatActivity {
         Button rideFormButton = findViewById(R.id.rideFormButton);
         Button myPostsButton = findViewById(R.id.myPosts);
         Button othersPostsButton = findViewById(R.id.othersPosts);
+
+        activeRidesRecyclerView = findViewById(R.id.activeRidesRecyclerView);
+        activeRidesRecyclerView.setHasFixedSize(true);
+        activeRidesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        activeRideList = new ArrayList<>();
+        activeRideKeys = new ArrayList<>();
+
+        activeRideAdapter = new ActiveRideAdapter(activeRideList, activeRideKeys);
+        activeRidesRecyclerView.setAdapter(activeRideAdapter);
+
+        currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        databaseRef = FirebaseDatabase.getInstance().getReference("rides");
+
+        loadActiveRides();
+
 
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,6 +100,42 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+
+    private void loadActiveRides() {
+        if (currentUser == null) return;
+
+        databaseRef.orderByChild("accepted").equalTo(true)
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        activeRideList.clear();
+                        activeRideKeys.clear();
+
+                        for (DataSnapshot postSnapshot : snapshot.getChildren()) {
+                            Ride ride = postSnapshot.getValue(Ride.class);
+
+                            if (ride != null) {
+                                // Only show rides where current user is involved
+                                if ((ride.driverId != null && ride.driverId.equals(currentUser.getUid())) ||
+                                        (ride.riderId != null && ride.riderId.equals(currentUser.getUid()))) {
+
+                                    if (!(ride.driverConfirmed && ride.riderConfirmed)) {
+                                        activeRideList.add(ride);
+                                        activeRideKeys.add(postSnapshot.getKey());
+                                    }
+                                }
+                            }
+                        }
+
+                        activeRideAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Toast.makeText(MainActivity.this, "Failed to load active rides.", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void logoutConfirmation() {
