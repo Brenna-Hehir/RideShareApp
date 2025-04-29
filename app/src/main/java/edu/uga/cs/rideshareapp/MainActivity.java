@@ -26,6 +26,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -142,6 +143,8 @@ public class MainActivity extends AppCompatActivity {
                                 }
                             }
                         }
+
+                        Collections.sort(activeRideList, (ride1, ride2) -> ride1.dateTime.compareTo(ride2.dateTime));
 
                         activeRideAdapter.notifyDataSetChanged();
                     }
