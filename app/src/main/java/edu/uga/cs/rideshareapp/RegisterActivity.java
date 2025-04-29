@@ -23,6 +23,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -78,6 +80,12 @@ public class RegisterActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             Log.d( TAG, "Registration Success" );
+                            String userId = mAuth.getCurrentUser().getUid();
+
+                            // Set initial points to 150
+                            DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(userId);
+                            userRef.child("points").setValue(150);
+
                             startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
                         }
                         else {
