@@ -2,6 +2,7 @@ package edu.uga.cs.rideshareapp;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -36,174 +37,170 @@ public class RideFormActivity extends AppCompatActivity {
     private RadioButton rideOfferButton, rideRequestButton;
     private Button postRideButton;
 
+    private String rideKey;
+    private boolean isEdit = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_ride_form);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            Insets sys = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(sys.left, sys.top, sys.right, sys.bottom);
             return insets;
         });
 
         startingPointInput = findViewById(R.id.startingPoint);
-        destinationInput = findViewById(R.id.destination);
-        dateInput = findViewById(R.id.date);
-        timeInput = findViewById(R.id.time);
-        rideTypeGroup = findViewById(R.id.rideType);
-        rideOfferButton = findViewById(R.id.rideOffer);
-        rideRequestButton = findViewById(R.id.rideRequest);
-        postRideButton = findViewById(R.id.postRideButton);
+        destinationInput   = findViewById(R.id.destination);
+        dateInput          = findViewById(R.id.date);
+        timeInput          = findViewById(R.id.time);
+        rideTypeGroup      = findViewById(R.id.rideType);
+        rideOfferButton    = findViewById(R.id.rideOffer);
+        rideRequestButton  = findViewById(R.id.rideRequest);
+        postRideButton     = findViewById(R.id.postRideButton);
 
-        dateInput.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showDatePicker();
-            }
-        });
+        // check for edit mode
+        Intent intent = getIntent();
+        if (intent.hasExtra("rideKey")) {
+            isEdit   = true;
+            rideKey  = intent.getStringExtra("rideKey");
+            postRideButton.setText("Save Changes");
 
-        timeInput.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showTimePicker();
+            String rideType = intent.getStringExtra("rideType");
+            if ("offer".equals(rideType)) {
+                rideOfferButton.setChecked(true);
+            } else {
+                rideRequestButton.setChecked(true);
             }
-        });
 
-        postRideButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                submitRideForm();
-            }
-        });
+            startingPointInput.setText(intent.getStringExtra("from"));
+            destinationInput.setText(intent.getStringExtra("to"));
+
+            String dateTime = intent.getStringExtra("dateTime"); // "MM-dd-yyyy hh:mm a"
+            String[] parts = dateTime.split(" ", 2);
+            dateInput.setText(parts[0]);
+            timeInput.setText(parts[1]);
+        }
+
+        dateInput.setOnClickListener(v -> showDatePicker());
+        timeInput.setOnClickListener(v -> showTimePicker());
+        postRideButton.setOnClickListener(v -> submitRideForm());
     }
 
     private void showDatePicker() {
-        Calendar calendar = Calendar.getInstance();
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH);
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-
-        DatePickerDialog datePickerDialog = new DatePickerDialog (
-                RideFormActivity.this,
-                new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                        String selectedDate = String.format("%02d-%02d-%04d", month + 1, dayOfMonth, year);
-                        dateInput.setText(selectedDate);
-                    }
-                },
-                year, month, day
-        );
-        datePickerDialog.show();
+        Calendar cal = Calendar.getInstance();
+        new DatePickerDialog(
+                this,
+                (view, year, month, day) ->
+                        dateInput.setText(String.format("%02d-%02d-%04d", month+1, day, year)),
+                cal.get(Calendar.YEAR),
+                cal.get(Calendar.MONTH),
+                cal.get(Calendar.DAY_OF_MONTH)
+        ).show();
     }
 
     private void showTimePicker() {
-        Calendar calendar = Calendar.getInstance();
-        int hour = calendar.get(Calendar.HOUR);
-        int minute = calendar.get(Calendar.MINUTE);
-
-        TimePickerDialog timePickerDialog = new TimePickerDialog(
-                RideFormActivity.this,
-                new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        String selectedTime;
-                        int hour = hourOfDay;
-                        String amPm;
-
-                        if (hourOfDay >= 12) {
-                            amPm = "PM";
-                            if (hourOfDay > 12) {
-                                hour = hourOfDay - 12;
-                            }
-                        } else {
-                            amPm = "AM";
-                            if (hourOfDay == 0) {
-                                hour = 12;
-                            }
-                        }
-
-                        selectedTime = String.format("%02d:%02d %s", hour, minute, amPm);
-                        timeInput.setText(selectedTime);
-                    }
+        Calendar cal = Calendar.getInstance();
+        new TimePickerDialog(
+                this,
+                (view, hourOfDay, minute) -> {
+                    int hour = (hourOfDay == 0 ? 12 : (hourOfDay > 12 ? hourOfDay - 12 : hourOfDay));
+                    String amPm = hourOfDay >= 12 ? "PM" : "AM";
+                    timeInput.setText(String.format("%02d:%02d %s", hour, minute, amPm));
                 },
-                hour, minute, false
-        );
-        timePickerDialog.show();
+                cal.get(Calendar.HOUR_OF_DAY),
+                cal.get(Calendar.MINUTE),
+                false
+        ).show();
     }
 
     private void submitRideForm() {
-        String startingPoint = startingPointInput.getText().toString().trim();
-        String destination = destinationInput.getText().toString().trim();
+        String from = startingPointInput.getText().toString().trim();
+        String to   = destinationInput.getText().toString().trim();
         String date = dateInput.getText().toString().trim();
         String time = timeInput.getText().toString().trim();
-        int rideTypeId = rideTypeGroup.getCheckedRadioButtonId();
+        int checked = rideTypeGroup.getCheckedRadioButtonId();
 
-        // making sure all fields are filled out
-        if (rideTypeId == -1) {
-            Toast.makeText(this, "Please select Ride Offer or Ride Request.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (startingPoint.isEmpty()) {
-            Toast.makeText(this, "Please enter a starting point.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (destination.isEmpty()) {
-            Toast.makeText(this, "Please enter a destination.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (date.isEmpty()) {
-            Toast.makeText(this, "Please select a date.", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (time.isEmpty()) {
-            Toast.makeText(this, "Please select a time.", Toast.LENGTH_SHORT).show();
+        if (checked == -1 ||
+                from.isEmpty() ||
+                to.isEmpty() ||
+                date.isEmpty() ||
+                time.isEmpty()) {
+            Toast.makeText(this, "Please fill out all fields.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // making sure the date and time selected is in the future
-        String dateTimeStr = date + " " + time;
+        // future date/time check
+        String dtStr = date + " " + time;
         SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy hh:mm a", Locale.getDefault());
         try {
-            Date selectedDateTime = sdf.parse(dateTimeStr);
-            Date currentDateTime = new Date();
-
-            if (selectedDateTime != null && selectedDateTime.before(currentDateTime)) {
-                Toast.makeText(this, "Please select a date and time in the future.", Toast.LENGTH_SHORT).show();
+            Date sel = sdf.parse(dtStr);
+            if (sel != null && sel.before(new Date())) {
+                Toast.makeText(this,
+                        "Please select a date/time in the future.",
+                        Toast.LENGTH_SHORT).show();
                 return;
             }
         } catch (ParseException e) {
-            Toast.makeText(this, "Invalid date or time format.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,
+                    "Invalid date/time format.",
+                    Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // setup Firebase push
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        String uid = currentUser.getUid();
-        String email = currentUser.getEmail();
-        String rideType = (rideTypeId == R.id.rideOffer) ? "offer" : "request";
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) return;
 
-        // prepare ride information
+        String uid       = user.getUid();
+        String email     = user.getEmail();
+        String rideType  = (checked == R.id.rideOffer) ? "offer" : "request";
+
         Ride ride = new Ride(
                 rideType,
-                rideType.equals("offer") ? uid : null,      // driverId
-                rideType.equals("request") ? uid : null,    // riderId
-                startingPoint,
-                destination,
-                date + " " + time,
-                false,                              // accepted
-                false,                                       // driverConfirmed
-                false,                                       // riderConfirmed
-                rideType.equals("offer") ? email : null,     // driverEmail
-                rideType.equals("request") ? email : null    // riderEmail
+                rideType.equals("offer") ? uid    : null,
+                rideType.equals("request") ? uid  : null,
+                from,
+                to,
+                dtStr,
+                false,   // accepted
+                false,   // driverConfirmed
+                false,   // riderConfirmed
+                rideType.equals("offer") ? email   : null,
+                rideType.equals("request") ? email : null
         );
 
-        // Push to Firebase
-        DatabaseReference databaseRef = FirebaseDatabase.getInstance().getReference("rides");
-        databaseRef.push().setValue(ride);
+        DatabaseReference dbRef = FirebaseDatabase.getInstance()
+                .getReference("rides");
 
-        Toast.makeText(this, "Ride posted successfully!", Toast.LENGTH_SHORT).show();
-        finish();
+        if (isEdit) {
+            dbRef.child(rideKey)
+                    .setValue(ride)
+                    .addOnSuccessListener(a -> {
+                        Toast.makeText(this,
+                                "Ride updated",
+                                Toast.LENGTH_SHORT).show();
+                        finish();
+                    })
+                    .addOnFailureListener(e ->
+                            Toast.makeText(this,
+                                    "Update failed",
+                                    Toast.LENGTH_SHORT).show()
+                    );
+        } else {
+            dbRef.push()
+                    .setValue(ride)
+                    .addOnSuccessListener(a -> {
+                        Toast.makeText(this,
+                                "Ride posted successfully!",
+                                Toast.LENGTH_SHORT).show();
+                        finish();
+                    })
+                    .addOnFailureListener(e ->
+                            Toast.makeText(this,
+                                    "Post failed",
+                                    Toast.LENGTH_SHORT).show()
+                    );
+        }
     }
 }
