@@ -52,15 +52,15 @@ public class MyPostsActivity extends AppCompatActivity {
         });
 
         myPostsRecyclerView = findViewById(R.id.myPostsRecyclerView);
-        Button myOffersButton = findViewById(R.id.myOffersButton);
-        Button myRequestButton = findViewById(R.id.myRequestsButton);
-        currentListHeader = findViewById(R.id.currentListHeader);
-        Button homeButton = findViewById(R.id.homeButton);
+        Button myOffersButton   = findViewById(R.id.myOffersButton);
+        Button myRequestButton  = findViewById(R.id.myRequestsButton);
+        currentListHeader       = findViewById(R.id.currentListHeader);
+        Button homeButton       = findViewById(R.id.homeButton);
 
         myPostsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         rideList = new ArrayList<>();
         rideKeys = new ArrayList<>();
-        adapter = new RidePostAdapter(rideList, rideKeys, "MY_POSTS"); // mode
+        adapter = new RidePostAdapter(rideList, rideKeys, "MY_POSTS");
         myPostsRecyclerView.setAdapter(adapter);
 
         databaseRef = FirebaseDatabase.getInstance().getReference("rides");
@@ -68,61 +68,65 @@ public class MyPostsActivity extends AppCompatActivity {
 
         loadMyPosts();
 
-        myOffersButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                currentMode = "offer";
-                currentListHeader.setText("My Unaccepted Offers");
-                loadMyPosts();
-            }
+        myOffersButton.setOnClickListener(v -> {
+            currentMode = "offer";
+            currentListHeader.setText("My Unaccepted Offers");
+            loadMyPosts();
         });
 
-        myRequestButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                currentMode = "request";
-                currentListHeader.setText("My Unaccepted Requests");
-                loadMyPosts();
-            }
+        myRequestButton.setOnClickListener(v -> {
+            currentMode = "request";
+            currentListHeader.setText("My Unaccepted Requests");
+            loadMyPosts();
         });
 
-        homeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(MyPostsActivity.this, MainActivity.class);
-                startActivity(intent);
-            }
+        homeButton.setOnClickListener(v -> {
+            startActivity(new Intent(MyPostsActivity.this, MainActivity.class));
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        loadMyPosts();  // refresh whenever the user returns
     }
 
     private void loadMyPosts() {
         if (currentUser == null) return;
 
-        databaseRef.orderByChild("accepted").equalTo(false).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                rideList.clear();
-                for (DataSnapshot postSnapshot : snapshot.getChildren()) {
-                    Ride ride = postSnapshot.getValue(Ride.class);
+        // clear both lists before re-fetching
+        rideList.clear();
+        rideKeys.clear();
 
-                    if (ride != null) {
-                        if (currentMode.equals("offer") && ride.driverId != null && ride.driverId.equals(currentUser.getUid())) {
-                            rideList.add(ride);
-                            rideKeys.add(postSnapshot.getKey());
+        databaseRef
+                .orderByChild("accepted")
+                .equalTo(false)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        for (DataSnapshot postSnapshot : snapshot.getChildren()) {
+                            Ride ride = postSnapshot.getValue(Ride.class);
+                            if (ride == null) continue;
+
+                            String uid = currentUser.getUid();
+                            if (currentMode.equals("offer")
+                                    && ride.driverId != null
+                                    && ride.driverId.equals(uid)) {
+                                rideList.add(ride);
+                                rideKeys.add(postSnapshot.getKey());
+                            }
+                            if (currentMode.equals("request")
+                                    && ride.riderId != null
+                                    && ride.riderId.equals(uid)) {
+                                rideList.add(ride);
+                                rideKeys.add(postSnapshot.getKey());
+                            }
                         }
-                        if (currentMode.equals("request") && ride.riderId != null && ride.riderId.equals(currentUser.getUid())) {
-                            rideList.add(ride);
-                            rideKeys.add(postSnapshot.getKey());
-                        }
+                        adapter.notifyDataSetChanged();
                     }
-                }
-                adapter.notifyDataSetChanged();
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) { }
+                });
     }
 }
