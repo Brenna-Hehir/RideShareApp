@@ -129,4 +129,32 @@ public class OthersPostsActivity extends AppCompatActivity {
             }
         });
     }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("currentMode", currentMode);
+
+        // Optional: preserve scroll position too
+        int scrollPosition = ((LinearLayoutManager) othersPostsRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+        outState.putInt("scrollPosition", scrollPosition);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        currentMode = savedInstanceState.getString("currentMode", "offer");
+
+        if (currentMode.equals("offer")) {
+            currentListHeader.setText("Other's Unaccepted Offers");
+        } else {
+            currentListHeader.setText("Other's Unaccepted Requests");
+        }
+
+        loadOthersPosts();
+
+        int scrollPosition = savedInstanceState.getInt("scrollPosition", 0);
+        othersPostsRecyclerView.scrollToPosition(scrollPosition);
+    }
 }

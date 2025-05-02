@@ -103,4 +103,18 @@ public class RegisterActivity extends AppCompatActivity {
                     }
                 });
     }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("email", emailInput.getText().toString());
+        outState.putString("password", passwordInput.getText().toString());
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        emailInput.setText(savedInstanceState.getString("email", ""));
+        passwordInput.setText(savedInstanceState.getString("password", ""));
+    }
 }

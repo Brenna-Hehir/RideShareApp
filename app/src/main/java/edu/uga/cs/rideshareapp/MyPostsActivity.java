@@ -37,6 +37,7 @@ public class MyPostsActivity extends AppCompatActivity {
 
     private DatabaseReference databaseRef;
     private FirebaseUser currentUser;
+    private int scrollPosition = 0;
 
     private String currentMode = "offer"; // "offer" or "request"
 
@@ -129,4 +130,32 @@ public class MyPostsActivity extends AppCompatActivity {
                     public void onCancelled(@NonNull DatabaseError error) { }
                 });
     }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        scrollPosition = ((LinearLayoutManager) myPostsRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+        outState.putInt("scrollPosition", scrollPosition);
+        outState.putString("currentMode", currentMode);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        currentMode = savedInstanceState.getString("currentMode", "offer");
+
+        // Update header text based on restored mode
+        if (currentMode.equals("offer")) {
+            currentListHeader.setText("My Unaccepted Offers");
+        } else {
+            currentListHeader.setText("My Unaccepted Requests");
+        }
+
+        loadMyPosts();
+
+        scrollPosition = savedInstanceState.getInt("scrollPosition", 0);
+        myPostsRecyclerView.scrollToPosition(scrollPosition);
+    }
+
 }

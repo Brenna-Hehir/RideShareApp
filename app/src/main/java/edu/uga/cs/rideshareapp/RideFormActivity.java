@@ -14,6 +14,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -203,4 +204,38 @@ public class RideFormActivity extends AppCompatActivity {
                     );
         }
     }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        // Save user input
+        outState.putString("startingPoint", startingPointInput.getText().toString());
+        outState.putString("destination", destinationInput.getText().toString());
+        outState.putString("date", dateInput.getText().toString());
+        outState.putString("time", timeInput.getText().toString());
+
+        // Save selected ride type (RadioGroup)
+        int selectedRideTypeId = rideTypeGroup.getCheckedRadioButtonId();
+        outState.putInt("selectedRideTypeId", selectedRideTypeId);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        // Restore user input
+        startingPointInput.setText(savedInstanceState.getString("startingPoint", ""));
+        destinationInput.setText(savedInstanceState.getString("destination", ""));
+        dateInput.setText(savedInstanceState.getString("date", ""));
+        timeInput.setText(savedInstanceState.getString("time", ""));
+
+        // Restore selected radio button
+        int selectedRideTypeId = savedInstanceState.getInt("selectedRideTypeId", -1);
+        if (selectedRideTypeId != -1) {
+            rideTypeGroup.check(selectedRideTypeId);
+        }
+    }
+
+
 }

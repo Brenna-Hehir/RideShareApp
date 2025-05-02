@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
     private DatabaseReference userRef;
     private ValueEventListener pointsListener;
+    private int scrollPosition = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -208,6 +209,20 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        scrollPosition = ((LinearLayoutManager) activeRidesRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+        outState.putInt("activeScrollPosition", scrollPosition);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        scrollPosition = savedInstanceState.getInt("activeScrollPosition", 0);
+        activeRidesRecyclerView.scrollToPosition(scrollPosition);
     }
 
     @Override
