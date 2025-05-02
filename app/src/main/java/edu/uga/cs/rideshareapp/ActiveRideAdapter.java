@@ -19,16 +19,33 @@ import com.google.firebase.database.ServerValue;
 
 import java.util.List;
 
+/**
+ * RecyclerView.Adapter implementation for displaying a list of active rides.
+ * Allows users to confirm ride completion and updates Firebase accordingly.
+ */
 public class ActiveRideAdapter extends RecyclerView.Adapter<ActiveRideAdapter.RideViewHolder> {
 
     private List<Ride> rideList;
-    private List<String> rideKeys; // Matching keys for updating Firebase
+    private List<String> rideKeys; // Firebase keys matching each ride
 
+    /**
+     * Constructs a new ActiveRideAdapter.
+     *
+     * @param rideList  The list of active Ride objects to display
+     * @param rideKeys  The list of Firebase keys corresponding to each ride
+     */
     public ActiveRideAdapter(List<Ride> rideList, List<String> rideKeys) {
         this.rideList = rideList;
         this.rideKeys = rideKeys;
     }
 
+    /**
+     * Called when RecyclerView needs a new ViewHolder of the given type.
+     *
+     * @param parent   The parent ViewGroup into which the new view will be added
+     * @param viewType The view type of the new view
+     * @return A new RideViewHolder
+     */
     @NonNull
     @Override
     public RideViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -37,6 +54,12 @@ public class ActiveRideAdapter extends RecyclerView.Adapter<ActiveRideAdapter.Ri
         return new RideViewHolder(itemView);
     }
 
+    /**
+     * Binds the data to the view at the specified position.
+     *
+     * @param holder   The RideViewHolder to bind data to
+     * @param position The position in the list to bind
+     */
     @Override
     public void onBindViewHolder(@NonNull RideViewHolder holder, int position) {
         Ride ride = rideList.get(position);
@@ -60,11 +83,10 @@ public class ActiveRideAdapter extends RecyclerView.Adapter<ActiveRideAdapter.Ri
             holder.pointsTextView.setTextColor(Color.parseColor("#FF0000")); // Red
         }
 
-        // Set From and To locations
         holder.fromTextView.setText("From: " + ride.from);
         holder.toTextView.setText("To: " + ride.to);
 
-        // Set Button Logic
+        // Determine if this user has already confirmed the ride
         boolean userAlreadyConfirmed = (isDriver && ride.driverConfirmed) || (isRider && ride.riderConfirmed);
 
         if (userAlreadyConfirmed) {
@@ -74,6 +96,7 @@ public class ActiveRideAdapter extends RecyclerView.Adapter<ActiveRideAdapter.Ri
             holder.confirmButton.setText("Confirm Ride\n Completed");
             holder.confirmButton.setEnabled(true);
 
+            // Set click listener to update confirmation status
             holder.confirmButton.setOnClickListener(v -> {
                 int adapterPosition = holder.getAdapterPosition();
                 String rideKey = rideKeys.get(adapterPosition);
@@ -81,6 +104,7 @@ public class ActiveRideAdapter extends RecyclerView.Adapter<ActiveRideAdapter.Ri
                 DatabaseReference rideRef = FirebaseDatabase.getInstance().getReference("rides")
                         .child(rideKey);
 
+                // Update the correct confirmation field
                 if (isDriver) {
                     ride.driverConfirmed = true;
                 } else if (isRider) {
@@ -101,19 +125,31 @@ public class ActiveRideAdapter extends RecyclerView.Adapter<ActiveRideAdapter.Ri
         }
     }
 
+    /**
+     * Returns the total number of items in the adapter.
+     *
+     * @return Number of rides in the list
+     */
     @Override
     public int getItemCount() {
         return rideList.size();
     }
 
+    /**
+     * Finalizes a completed ride by updating user points and removing the ride from Firebase.
+     *
+     * @param ride     The Ride object that has been confirmed by both parties
+     * @param rideKey The index of the ride in the adapter/rideKeys list
+     */
     private void finalizeCompletedRide(Ride ride, int rideKey) {
         int ridePoints = 50;
 
-        // Update Points
+        // Add driver points
         DatabaseReference driverPointsRef = FirebaseDatabase.getInstance().getReference("users")
                 .child(ride.driverId)
                 .child("points");
 
+        // Remove rider points
         DatabaseReference riderPointsRef = FirebaseDatabase.getInstance().getReference("users")
                 .child(ride.riderId)
                 .child("points");
@@ -128,10 +164,18 @@ public class ActiveRideAdapter extends RecyclerView.Adapter<ActiveRideAdapter.Ri
 
     }
 
+    /**
+     * ViewHolder class for active ride list items.
+     */
     static class RideViewHolder extends RecyclerView.ViewHolder {
         TextView dateTimeTextView, roleTextView, fromTextView, toTextView, pointsTextView;
         Button confirmButton;
 
+        /**
+         * Constructs a RideViewHolder and binds UI elements.
+         *
+         * @param itemView The item view layout inflated from XML
+         */
         public RideViewHolder(@NonNull View itemView) {
             super(itemView);
             dateTimeTextView = itemView.findViewById(R.id.dateTimeTextView);

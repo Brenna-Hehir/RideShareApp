@@ -18,18 +18,36 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.List;
 
+/**
+ * RecyclerView.Adapter for displaying rides in either "My Posts" or "Others' Posts" views.
+ * Supports editing and deleting rides (for user's own posts), or accepting rides (from others).
+ */
 public class RidePostAdapter extends RecyclerView.Adapter<RidePostAdapter.RideViewHolder> {
 
     private List<Ride> rideList;
     private List<String> rideKeys;
     private String mode;   // "MY_POSTS" or "OTHERS_POSTS"
 
+    /**
+     * Constructor for RidePostAdapter.
+     *
+     * @param rideList  List of Ride objects to display
+     * @param rideKeys  Corresponding Firebase keys for each ride
+     * @param mode      Display mode ("MY_POSTS" or "OTHERS_POSTS")
+     */
     public RidePostAdapter(List<Ride> rideList, List<String> rideKeys, String mode) {
         this.rideList = rideList;
         this.rideKeys  = rideKeys;
         this.mode      = mode;
     }
 
+    /**
+     * Inflates the layout for each ride item in the RecyclerView.
+     *
+     * @param parent   The parent ViewGroup
+     * @param viewType View type (not used here)
+     * @return RideViewHolder instance
+     */
     @NonNull
     @Override
     public RideViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -38,6 +56,12 @@ public class RidePostAdapter extends RecyclerView.Adapter<RidePostAdapter.RideVi
         return new RideViewHolder(view);
     }
 
+    /**
+     * Binds ride data to the view holder, and sets up appropriate button actions.
+     *
+     * @param holder   The RideViewHolder
+     * @param position The position in the data list
+     */
     @Override
     public void onBindViewHolder(@NonNull RideViewHolder holder, int position) {
         Ride ride = rideList.get(position);
@@ -48,11 +72,12 @@ public class RidePostAdapter extends RecyclerView.Adapter<RidePostAdapter.RideVi
         holder.dateTimeTextView.setText(ride.dateTime);
 
         if ("MY_POSTS".equals(mode)) {
-            // show both Edit & Delete
+            // User's own posts: show Edit and Delete
             holder.actionButton.setText("Edit");
             holder.actionButton.setVisibility(View.VISIBLE);
             holder.deleteButton.setVisibility(View.VISIBLE);
 
+            // Edit ride: opens RideFormActivity with prefilled data
             holder.actionButton.setOnClickListener(v -> {
                 Intent intent = new Intent(v.getContext(), RideFormActivity.class);
                 intent.putExtra("rideKey",    key);
@@ -63,6 +88,7 @@ public class RidePostAdapter extends RecyclerView.Adapter<RidePostAdapter.RideVi
                 v.getContext().startActivity(intent);
             });
 
+            // Delete ride from Firebase and remove from adapter
             holder.deleteButton.setOnClickListener(v -> {
                 DatabaseReference ref = FirebaseDatabase.getInstance()
                         .getReference("rides")
@@ -83,11 +109,12 @@ public class RidePostAdapter extends RecyclerView.Adapter<RidePostAdapter.RideVi
             });
 
         } else {
-            // OTHERS_POSTS: only Accept
+            // Other users' posts: show Accept button only
             holder.actionButton.setText("Accept");
             holder.actionButton.setVisibility(View.VISIBLE);
             holder.deleteButton.setVisibility(View.GONE);
 
+            // Accept ride: current user becomes rider (if it's an offer) or driver (if it's a request)
             holder.actionButton.setOnClickListener(v -> {
                 FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
                 if (currentUser == null) return;
@@ -122,15 +149,28 @@ public class RidePostAdapter extends RecyclerView.Adapter<RidePostAdapter.RideVi
         }
     }
 
+    /**
+     * Returns the total number of ride items in the adapter.
+     *
+     * @return item count
+     */
     @Override
     public int getItemCount() {
         return rideList.size();
     }
 
+    /**
+     * ViewHolder class that holds view references for a single ride item.
+     */
     static class RideViewHolder extends RecyclerView.ViewHolder {
         TextView fromTextView, toTextView, dateTimeTextView;
         Button actionButton, deleteButton;
 
+        /**
+         * Constructs a RideViewHolder and binds UI components.
+         *
+         * @param itemView The inflated item layout
+         */
         public RideViewHolder(@NonNull View itemView) {
             super(itemView);
             fromTextView     = itemView.findViewById(R.id.fromTextView);

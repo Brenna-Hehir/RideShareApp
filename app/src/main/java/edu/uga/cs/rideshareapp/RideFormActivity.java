@@ -31,6 +31,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+/**
+ * Activity that allows the user to post a new ride offer or request.
+ * Also supports editing an existing ride, if launched in edit mode.
+ */
 public class RideFormActivity extends AppCompatActivity {
 
     private EditText startingPointInput, destinationInput, dateInput, timeInput;
@@ -41,6 +45,12 @@ public class RideFormActivity extends AppCompatActivity {
     private String rideKey;
     private boolean isEdit = false;
 
+    /**
+     * Called when the activity is first created.
+     * Initializes form fields, determines if editing, and sets up event listeners.
+     *
+     * @param savedInstanceState Previous instance state (if restoring)
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,7 +71,7 @@ public class RideFormActivity extends AppCompatActivity {
         rideRequestButton  = findViewById(R.id.rideRequest);
         postRideButton     = findViewById(R.id.postRideButton);
 
-        // check for edit mode
+        // Check if editing an existing ride
         Intent intent = getIntent();
         if (intent.hasExtra("rideKey")) {
             isEdit   = true;
@@ -84,11 +94,15 @@ public class RideFormActivity extends AppCompatActivity {
             timeInput.setText(parts[1]);
         }
 
+        // Listeners for date/time pickers and submit button
         dateInput.setOnClickListener(v -> showDatePicker());
         timeInput.setOnClickListener(v -> showTimePicker());
         postRideButton.setOnClickListener(v -> submitRideForm());
     }
 
+    /**
+     * Opens a date picker dialog and sets selected date into the input field.
+     */
     private void showDatePicker() {
         Calendar cal = Calendar.getInstance();
         new DatePickerDialog(
@@ -101,6 +115,10 @@ public class RideFormActivity extends AppCompatActivity {
         ).show();
     }
 
+    /**
+     * Opens a time picker dialog and sets selected time into the input field.
+     * Time is displayed in 12-hour format with AM/PM.
+     */
     private void showTimePicker() {
         Calendar cal = Calendar.getInstance();
         new TimePickerDialog(
@@ -116,6 +134,10 @@ public class RideFormActivity extends AppCompatActivity {
         ).show();
     }
 
+    /**
+     * Validates form input, constructs a Ride object,
+     * and either posts a new ride or updates an existing one in Firebase.
+     */
     private void submitRideForm() {
         String from = startingPointInput.getText().toString().trim();
         String to   = destinationInput.getText().toString().trim();
@@ -123,6 +145,7 @@ public class RideFormActivity extends AppCompatActivity {
         String time = timeInput.getText().toString().trim();
         int checked = rideTypeGroup.getCheckedRadioButtonId();
 
+        // Check for empty fields
         if (checked == -1 ||
                 from.isEmpty() ||
                 to.isEmpty() ||
@@ -132,7 +155,7 @@ public class RideFormActivity extends AppCompatActivity {
             return;
         }
 
-        // future date/time check
+        // Ensure selected date/time is in the future
         String dtStr = date + " " + time;
         SimpleDateFormat sdf = new SimpleDateFormat("MM-dd-yyyy hh:mm a", Locale.getDefault());
         try {
@@ -157,6 +180,7 @@ public class RideFormActivity extends AppCompatActivity {
         String email     = user.getEmail();
         String rideType  = (checked == R.id.rideOffer) ? "offer" : "request";
 
+        // Create a new Ride object
         Ride ride = new Ride(
                 rideType,
                 rideType.equals("offer") ? uid    : null,
@@ -175,6 +199,7 @@ public class RideFormActivity extends AppCompatActivity {
                 .getReference("rides");
 
         if (isEdit) {
+            // Update existing ride
             dbRef.child(rideKey)
                     .setValue(ride)
                     .addOnSuccessListener(a -> {
@@ -189,6 +214,7 @@ public class RideFormActivity extends AppCompatActivity {
                                     Toast.LENGTH_SHORT).show()
                     );
         } else {
+            // Push new ride
             dbRef.push()
                     .setValue(ride)
                     .addOnSuccessListener(a -> {
@@ -205,6 +231,11 @@ public class RideFormActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Saves form state (input fields and selected ride type) to bundle.
+     *
+     * @param outState Bundle where state is saved
+     */
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -220,6 +251,11 @@ public class RideFormActivity extends AppCompatActivity {
         outState.putInt("selectedRideTypeId", selectedRideTypeId);
     }
 
+    /**
+     * Restores form state (input fields and selected ride type) from bundle.
+     *
+     * @param savedInstanceState Bundle containing previously saved state
+     */
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
@@ -236,6 +272,4 @@ public class RideFormActivity extends AppCompatActivity {
             rideTypeGroup.check(selectedRideTypeId);
         }
     }
-
-
 }

@@ -24,12 +24,22 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 
+/**
+ * Activity for user login using Firebase Authentication.
+ * Provides input validation, login logic, and links to registration.
+ */
 public class LoginActivity extends AppCompatActivity {
 
     private EditText emailInput;
     private EditText passwordInput;
     private FirebaseAuth mAuth;
 
+    /**
+     * Called when the activity is starting. Sets up UI and button logic.
+     *
+     * @param savedInstanceState If the activity is being re-initialized after previously being shut down,
+     *                           this contains the data it most recently supplied; otherwise, it is null.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +58,7 @@ public class LoginActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
+        // Set listener for login button
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -55,6 +66,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        // Navigate to RegisterActivity when user clicks "Register"
         registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -63,23 +75,27 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Validates user input and attempts login via Firebase Authentication.
+     * Displays appropriate messages on success or failure.
+     */
     private void loginUser() {
         String email = emailInput.getText().toString().trim();
         String password = passwordInput.getText().toString().trim();
 
-        // check if email is correctly formatted
+        // Validate email format
         if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             Toast.makeText(LoginActivity.this, "Please enter a valid email address.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // check if password is valid
+        // Validate password length
         if (password.isEmpty() || password.length() < 6) {
             Toast.makeText(LoginActivity.this, "Password must be at least 6 characters.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // firebase will check if the email is unique
+        // Attempt login with Firebase
         mAuth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -96,6 +112,11 @@ public class LoginActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Saves the current state of the input fields when the activity is paused or recreated.
+     *
+     * @param outState The Bundle in which to place saved state values.
+     */
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -103,6 +124,11 @@ public class LoginActivity extends AppCompatActivity {
         outState.putString("password", passwordInput.getText().toString());
     }
 
+    /**
+     * Restores the input fields from a previously saved instance state.
+     *
+     * @param savedInstanceState The Bundle containing the saved state.
+     */
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);

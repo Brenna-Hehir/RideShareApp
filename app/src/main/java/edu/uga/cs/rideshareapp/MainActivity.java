@@ -29,6 +29,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * The main dashboard activity for the RideShare app.
+ * Displays active rides, user points, and navigation to other features.
+ */
 public class MainActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
@@ -45,6 +49,11 @@ public class MainActivity extends AppCompatActivity {
     private ValueEventListener pointsListener;
     private int scrollPosition = 0;
 
+    /**
+     * Called when the activity is first created. Initializes UI and listeners.
+     *
+     * @param savedInstanceState Previously saved instance state bundle
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -85,7 +94,7 @@ public class MainActivity extends AppCompatActivity {
 
         loadActiveRides();
 
-
+        // Navigates to logout confirmation dialog
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -93,6 +102,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // Navigates to RideFormActivity
         rideFormButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -101,6 +111,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //  Navigates to MyPostsActivity
         myPostsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -109,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // Navigates to OthersPostsActivity
         othersPostsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -118,6 +130,10 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Loads all active rides from Firebase where the current user is a driver or rider.
+     * Only unconfirmed rides are shown.
+     */
     private void loadActiveRides() {
         if (currentUser == null) return;
 
@@ -145,6 +161,7 @@ public class MainActivity extends AppCompatActivity {
                             }
                         }
 
+                        // Sort rides chronologically
                         Collections.sort(activeRideList, (ride1, ride2) -> ride1.dateTime.compareTo(ride2.dateTime));
 
                         activeRideAdapter.notifyDataSetChanged();
@@ -157,6 +174,9 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Sets up a listener to update the user's point display in real-time.
+     */
     private void setupPointsListener() {
         pointsListener = userRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -176,7 +196,9 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-
+    /**
+     * Displays a confirmation dialog before logging out.
+     */
     private void logoutConfirmation() {
         new AlertDialog.Builder(this)
                 .setTitle("Confirm Logout")
@@ -190,6 +212,9 @@ public class MainActivity extends AppCompatActivity {
                 .show();
     }
 
+    /**
+     * Logs the user out and redirects to the LoginActivity.
+     */
     private void logoutUser() {
         mAuth.signOut();
         Intent intent = new Intent(MainActivity.this, LoginActivity.class);
@@ -198,6 +223,10 @@ public class MainActivity extends AppCompatActivity {
         finish();
     }
 
+    /**
+     * Checks on activity start whether a user is still logged in.
+     * Redirects to login if not.
+     */
     @Override
     protected void onStart() {
         super.onStart();
@@ -211,6 +240,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Saves the current scroll position of the ride list when activity is paused.
+     *
+     * @param outState Bundle where the state is saved
+     */
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -218,6 +252,11 @@ public class MainActivity extends AppCompatActivity {
         outState.putInt("activeScrollPosition", scrollPosition);
     }
 
+    /**
+     * Restores the scroll position of the ride list when activity is resumed.
+     *
+     * @param savedInstanceState Bundle containing previously saved state
+     */
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
@@ -225,6 +264,9 @@ public class MainActivity extends AppCompatActivity {
         activeRidesRecyclerView.scrollToPosition(scrollPosition);
     }
 
+    /**
+     * Cleans up Firebase listeners to avoid memory leaks.
+     */
     @Override
     protected void onDestroy() {
         super.onDestroy();

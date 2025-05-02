@@ -26,12 +26,21 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+/**
+ * Activity that handles user registration using Firebase Authentication.
+ * Validates user input, creates the account, and stores initial user points.
+ */
 public class RegisterActivity extends AppCompatActivity {
 
     private EditText emailInput;
     private EditText passwordInput;
     private FirebaseAuth mAuth;
 
+    /**
+     * Called when the activity is starting. Sets up input fields and register button.
+     *
+     * @param savedInstanceState The previously saved instance state.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,23 +66,28 @@ public class RegisterActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Validates the email and password fields, then attempts to register the user using Firebase.
+     * On success, initializes user points and navigates to the LoginActivity.
+     * On failure, displays appropriate error messages.
+     */
     private void registerUser() {
         String email = emailInput.getText().toString().trim();
         String password = passwordInput.getText().toString().trim();
 
-        // check if email is correctly formatted
+        // Check for valid email format
         if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             Toast.makeText(RegisterActivity.this, "Please enter a valid email address.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // check if password is valid
+        // Enforce minimum password length
         if (password.isEmpty() || password.length() < 6) {
             Toast.makeText(RegisterActivity.this, "Password must be at least 6 characters.", Toast.LENGTH_SHORT).show();
             return;
         }
 
-        // firebase will check if the email is unique
+        // Create user with Firebase Authentication
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(RegisterActivity.this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -82,13 +96,15 @@ public class RegisterActivity extends AppCompatActivity {
                             Log.d( TAG, "Registration Success" );
                             String userId = mAuth.getCurrentUser().getUid();
 
-                            // Set initial points to 150
+                            // Set initial points for the new user
                             DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(userId);
                             userRef.child("points").setValue(150);
 
+                            // Navigate to LoginActivity after successful registration
                             startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
                         }
                         else {
+                            // Handle potential errors during registration
                             String errorMessage;
                             try {
                                 throw task.getException();
@@ -104,6 +120,11 @@ public class RegisterActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Saves the email and password input state to restore later (e.g. on screen rotation).
+     *
+     * @param outState The Bundle to save state into.
+     */
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -111,6 +132,11 @@ public class RegisterActivity extends AppCompatActivity {
         outState.putString("password", passwordInput.getText().toString());
     }
 
+    /**
+     * Restores email and password fields from saved state.
+     *
+     * @param savedInstanceState The Bundle containing the saved input values.
+     */
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);

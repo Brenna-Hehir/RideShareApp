@@ -26,6 +26,10 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Activity to display a user's own ride posts (either offers or requests) that haven't been accepted yet.
+ * Allows toggling between offer/request views and returning to the main dashboard.
+ */
 public class MyPostsActivity extends AppCompatActivity {
 
     private RecyclerView myPostsRecyclerView;
@@ -39,8 +43,14 @@ public class MyPostsActivity extends AppCompatActivity {
     private FirebaseUser currentUser;
     private int scrollPosition = 0;
 
+    // Tracks whether the user is viewing their offers or requests
     private String currentMode = "offer"; // "offer" or "request"
 
+    /**
+     * Called when the activity is starting. Initializes UI elements and loads unaccepted posts.
+     *
+     * @param savedInstanceState The previously saved state, if any.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,6 +62,7 @@ public class MyPostsActivity extends AppCompatActivity {
             return insets;
         });
 
+        // Setup RecyclerView and adapter
         myPostsRecyclerView = findViewById(R.id.myPostsRecyclerView);
         Button myOffersButton   = findViewById(R.id.myOffersButton);
         Button myRequestButton  = findViewById(R.id.myRequestsButton);
@@ -69,29 +80,39 @@ public class MyPostsActivity extends AppCompatActivity {
 
         loadMyPosts();
 
+        // Show user's unaccepted ride offers
         myOffersButton.setOnClickListener(v -> {
             currentMode = "offer";
             currentListHeader.setText("My Unaccepted Offers");
             loadMyPosts();
         });
 
+        // Show user's unaccepted ride requests
         myRequestButton.setOnClickListener(v -> {
             currentMode = "request";
             currentListHeader.setText("My Unaccepted Requests");
             loadMyPosts();
         });
 
+        // Navigate back to the main activity
         homeButton.setOnClickListener(v -> {
             startActivity(new Intent(MyPostsActivity.this, MainActivity.class));
         });
     }
 
+    /**
+     * Reloads the current list of unaccepted posts when returning to the activity.
+     */
     @Override
     protected void onResume() {
         super.onResume();
         loadMyPosts();  // refresh whenever the user returns
     }
 
+    /**
+     * Loads unaccepted ride offers or requests (based on currentMode) created by the current user.
+     * Populates the adapter with results from Firebase.
+     */
     private void loadMyPosts() {
         if (currentUser == null) return;
 
@@ -131,6 +152,11 @@ public class MyPostsActivity extends AppCompatActivity {
                 });
     }
 
+    /**
+     * Saves the current scroll position and current mode (offer/request) to restore on configuration changes.
+     *
+     * @param outState The Bundle to write state data to.
+     */
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -139,6 +165,11 @@ public class MyPostsActivity extends AppCompatActivity {
         outState.putString("currentMode", currentMode);
     }
 
+    /**
+     * Restores scroll position and filter mode (offer/request) after a configuration change.
+     *
+     * @param savedInstanceState The Bundle containing the saved state.
+     */
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
@@ -157,5 +188,4 @@ public class MyPostsActivity extends AppCompatActivity {
         scrollPosition = savedInstanceState.getInt("scrollPosition", 0);
         myPostsRecyclerView.scrollToPosition(scrollPosition);
     }
-
 }

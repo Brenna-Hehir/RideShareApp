@@ -26,6 +26,11 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Activity that allows the user to view unaccepted ride offers and requests
+ * posted by other users. The user can toggle between viewing offers and requests,
+ * and navigate back to the home screen.
+ */
 public class OthersPostsActivity extends AppCompatActivity {
 
     private RecyclerView othersPostsRecyclerView;
@@ -38,8 +43,14 @@ public class OthersPostsActivity extends AppCompatActivity {
     private DatabaseReference databaseRef;
     private FirebaseUser currentUser;
 
+    // Current mode: "offer" shows others' offers, "request" shows others' requests
     private String currentMode = "offer"; // "offer" or "request"
 
+    /**
+     * Called when the activity is starting. Initializes layout, buttons, and loads Firebase data.
+     *
+     * @param savedInstanceState previously saved state, or null if starting fresh
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +62,7 @@ public class OthersPostsActivity extends AppCompatActivity {
             return insets;
         });
 
+        // Setup RecyclerView
         othersPostsRecyclerView = findViewById(R.id.othersPostsRecyclerView);
         Button othersOffersButton = findViewById(R.id.othersOffersButton);
         Button othersRequestsButton = findViewById(R.id.othersRequestsButton);
@@ -68,6 +80,7 @@ public class OthersPostsActivity extends AppCompatActivity {
 
         loadOthersPosts();
 
+        // Show unaccepted ride offers posted by other users
         othersOffersButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -77,6 +90,7 @@ public class OthersPostsActivity extends AppCompatActivity {
             }
         });
 
+        // Show unaccepted ride requests posted by other users
         othersRequestsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -86,6 +100,7 @@ public class OthersPostsActivity extends AppCompatActivity {
             }
         });
 
+        // Navigate back to the main activity
         homeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -95,6 +110,10 @@ public class OthersPostsActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Loads all unaccepted ride offers or requests posted by other users (not the current user),
+     * based on the currentMode filter.
+     */
     private void loadOthersPosts() {
         if (currentUser == null) return;
 
@@ -107,12 +126,14 @@ public class OthersPostsActivity extends AppCompatActivity {
 
                     if (ride != null) {
                         if (currentMode.equals("offer")) {
+                            // Show ride offers from other users
                             if (ride.rideType != null && ride.rideType.equals("offer") && ride.driverId != null && !ride.driverId.equals(currentUser.getUid())) {
                                 rideList.add(ride);
                                 rideKeys.add(postSnapshot.getKey());
                             }
                         }
                         if (currentMode.equals("request")) {
+                            // Show ride requests from other users
                             if (ride.rideType != null && ride.rideType.equals("request") && ride.riderId != null && !ride.riderId.equals(currentUser.getUid())) {
                                 rideList.add(ride);
                                 rideKeys.add(postSnapshot.getKey());
@@ -130,6 +151,11 @@ public class OthersPostsActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Saves the current filter mode and scroll position.
+     *
+     * @param outState Bundle to store the state values
+     */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -140,6 +166,11 @@ public class OthersPostsActivity extends AppCompatActivity {
         outState.putInt("scrollPosition", scrollPosition);
     }
 
+    /**
+     * Restores the previously saved filter mode and scroll position.
+     *
+     * @param savedInstanceState The saved state containing the mode and scroll position
+     */
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
